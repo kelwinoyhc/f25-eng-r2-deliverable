@@ -36,11 +36,11 @@ const speciesSchema = z.object({
 });
 type FormData = z.infer<typeof speciesSchema>;
 
-type Props = {
+interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   species: Species;
-};
+}
 
 export default function EditSpeciesDialog({ open, onOpenChange, species }: Props) {
   const router = useRouter();

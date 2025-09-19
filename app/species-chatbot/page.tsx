@@ -37,7 +37,7 @@ const handleSubmit = async () => {
 
     if (!res.ok) {
       const data = (await res.json().catch(() => ({}))) as { error?: string }; // typed
-      const errMsg = data?.error || "The chatbot is unavailable right now.";
+      const errMsg = data?.error ?? "The chatbot is unavailable right now.";
       setChatLog(prev => [...prev, { role: "bot", content: errMsg }]);
     } else {
       const data = (await res.json()) as { response: string };

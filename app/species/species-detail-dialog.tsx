@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import Image from "next/image";
 import {
   Dialog,
   DialogContent,
@@ -11,11 +12,11 @@ import {
 import type { Database } from "@/lib/schema";
 type Species = Database["public"]["Tables"]["species"]["Row"];
 
-type Props = {
+interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   species: Species;
-};
+}
 
 export default function SpeciesDetailDialog({ open, onOpenChange, species }: Props) {
   const { scientific_name, common_name, total_population, kingdom, description, image } = species;
@@ -46,9 +47,16 @@ export default function SpeciesDetailDialog({ open, onOpenChange, species }: Pro
         </DialogHeader>
 
         {image ? (
-          
-          <img src={image} alt={common_name ?? scientific_name} className="mt-2 w-full rounded-lg" />
+          <div className="mt-2 relative w-full h-64">
+            <Image
+              src={image}
+              alt={common_name ?? scientific_name}
+              fill
+              className="rounded-lg object-cover"
+            />
+          </div>
         ) : null}
+
 
         {/* separator */}
         <div className="my-4 h-px w-full bg-border" />

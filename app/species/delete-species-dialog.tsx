@@ -66,7 +66,12 @@ export default function DeleteSpeciesDialog({
         </DialogHeader>
 
         <div className="mt-4 grid grid-cols-2 gap-2">
-          <Button variant="destructive" onClick={onDelete}>
+          <Button
+            variant="destructive"
+            onClick={() => {
+              void onDelete();
+            }}
+          >
             Delete
           </Button>
           <DialogClose asChild>

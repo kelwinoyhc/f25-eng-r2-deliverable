@@ -39,11 +39,13 @@ export async function generateResponse(message: string): Promise<string> {
     });
 
     const text =
-      res.choices?.[0]?.message?.content?.trim() ||
+      res.choices?.[0]?.message?.content?.trim() ??
       "Sorry, I couldn't generate a response right now.";
+
     return text;
-  } catch (err: any) {
-    console.error("Species chatbot error:", err?.message || err);
-    return "Sorry — I had trouble contacting the model. Please try again.";
-  }
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      console.error("Species chatbot error:", msg);
+      return "Sorry — I had trouble contacting the model. Please try again.";
+    }
 }
