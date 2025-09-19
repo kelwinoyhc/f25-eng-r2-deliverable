@@ -1,13 +1,15 @@
-/* eslint-disable */
 "use client";
+// UI features
 import { TypographyH2, TypographyP } from "@/components/ui/typography";
 import { useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
+
 
 export default function SpeciesChatbot() {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [message, setMessage] = useState("");
   const [chatLog, setChatLog] = useState<{ role: "user" | "bot"; content: string }[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
   const handleInput = () => {
     const textarea = textareaRef.current;
     if (textarea) {
@@ -18,6 +20,35 @@ export default function SpeciesChatbot() {
 
 const handleSubmit = async () => {
   // TODO: Implement this function
+  const input = message.trim();
+    if (!input || isLoading) return; 
+    setIsLoading(true);
+
+    // Add user's message
+    setChatLog(prev => [...prev, { role: "user", content: input }]);
+    setMessage("");
+
+    try {
+    const res = await fetch("/api/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message: input }),
+    });
+
+    if (!res.ok) {
+      const data = (await res.json().catch(() => ({}))) as { error?: string }; // typed
+      const errMsg = data?.error || "The chatbot is unavailable right now.";
+      setChatLog(prev => [...prev, { role: "bot", content: errMsg }]);
+    } else {
+      const data = (await res.json()) as { response: string };
+      setChatLog(prev => [...prev, { role: "bot", content: data.response }]);
+    }
+  } catch {
+    setChatLog(prev => [...prev, { role: "bot", content: "Network error. Please try again." }]);
+  } finally {
+    setIsLoading(false);
+    handleInput();
+  }
 }
 
 return (
@@ -37,9 +68,8 @@ return (
           </TypographyP>
         </div>
       </div>
-      {/* Chat UI, ChatBot to be implemented */}
+      {/* Chatbot UI= */}
       <div className="mx-auto mt-6">
-        {/* Chat history */}
         <div className="h-[400px] space-y-3 overflow-y-auto rounded-lg border border-border bg-muted p-4">
           {chatLog.length === 0 ? (
             <p className="text-sm text-muted-foreground">Start chatting about a species!</p>
@@ -59,7 +89,6 @@ return (
             ))
           )}
         </div>
-        {/* Textarea and submission */}
         <div className="mt-4 flex flex-col items-end">
           <textarea
             ref={textareaRef}
@@ -67,12 +96,14 @@ return (
             onChange={(e) => setMessage(e.target.value)}
             onInput={handleInput}
             rows={1}
+            disabled={isLoading}
             placeholder="Ask about a species..."
             className="w-full resize-none overflow-hidden rounded border border-border bg-background p-2 text-sm text-foreground focus:outline-none"
           />
           <button
             type="button"
             onClick={() => void handleSubmit()}
+            disabled={isLoading}
             className="mt-2 rounded bg-primary px-4 py-2 text-background transition hover:opacity-90"
           >
             Enter
